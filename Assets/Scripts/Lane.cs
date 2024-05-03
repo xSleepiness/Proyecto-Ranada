@@ -11,6 +11,7 @@ public class Lane : MonoBehaviour
     public GameObject notePrefab;
     List<Note> notes = new List<Note>();
     public List<double> timeStamps = new List<double>();
+    public TMPro.TextMeshPro hitTimeText;
 
     int spawnIndex = 0;
     int inputIndex = 0;
@@ -55,8 +56,9 @@ public class Lane : MonoBehaviour
             {
                 if (Math.Abs(audioTime - timeStamp) < marginOfError)
                 {
-                    Hit();
+                    Hit(notes[inputIndex].gameObject.transform.position.x + 3);
                     print($"Hit on {inputIndex} note");
+                    //hitTimeText.text = notes[inputIndex].gameObject.transform.position.x.ToString();
                     Destroy(notes[inputIndex].gameObject);
                     inputIndex++;
                 }
@@ -74,12 +76,24 @@ public class Lane : MonoBehaviour
         }       
     
     }
-    private void Hit()
+    private void Hit(float position)
     {
         ScoreManager.Hit();
+        if (position <= 0.5 && position >= -0.5) {
+            hitTimeText.text = "Perfect!";
+            hitTimeText.fontSize = 7;
+        } else if (position <= 1 && position >= -1) {
+            hitTimeText.text = "Great!";
+            hitTimeText.fontSize = 6;
+        } else {
+            hitTimeText.text = "Good!";
+            hitTimeText.fontSize = 5;
+        }
     }
     private void Miss()
     {
         ScoreManager.Miss();
+        hitTimeText.text = "Miss!";
+        hitTimeText.fontSize = 4;
     }
 }

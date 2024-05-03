@@ -7,16 +7,20 @@ public class ScoreManager : MonoBehaviour
     public static ScoreManager Instance;
     public AudioSource hitSFX;
     public AudioSource missSFX;
+    public TMPro.TextMeshPro currentComboText;
     public TMPro.TextMeshPro scoreText;
     static int comboScore;
+    static int Score;
     void Start()
     {
         Instance = this;
         comboScore = 0;
+        Score = 0;
     }
     public static void Hit()
     {
         comboScore += 1;
+        Score += 100 * (comboScore + 1);
         Instance.hitSFX.Play();
     }
     public static void Miss()
@@ -26,6 +30,7 @@ public class ScoreManager : MonoBehaviour
     }
     private void Update()
     {
-        scoreText.text = comboScore.ToString();
+        currentComboText.text = comboScore.ToString();
+        scoreText.text = Score.ToString();
     }
 }
