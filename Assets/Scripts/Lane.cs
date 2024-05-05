@@ -11,16 +11,32 @@ public class Lane : MonoBehaviour
     public GameObject notePrefab;
     List<Note> notes = new List<Note>();
     public List<double> timeStamps = new List<double>();
-    public TMPro.TextMeshPro hitTimeText;
+
+    // Floating Text Prefabs
+    public GameObject PerfectPrefab;
+    public GameObject GreatPrefab;
+    public GameObject GoodPrefab;
+    public GameObject MissPrefab;
+    Vector3 floatingTextSpawnPos = new Vector3(-6.35f, 1.46f, 0f);
+
+    // Sprite Options
+    public Sprite[] spriteOptions;
 
     int spawnIndex = 0;
     int inputIndex = 0;
 
-    // Start is called before the first frame update
+    /**
+     * Start is called before the first frame update
+     */
     void Start()
     {
         
     }
+
+    /**
+     * Set the timestamps for the notes based on the given array of notes
+     * @param array: The array of notes
+     */
     public void SetTimeStamps(Melanchall.DryWetMidi.Interaction.Note[] array)
     {
         foreach (var note in array)
@@ -32,7 +48,10 @@ public class Lane : MonoBehaviour
             }
         }
     }
-    // Update is called once per frame
+
+    /**
+     * Update is called once per frame
+     */
     void Update()
     {
         if (spawnIndex < timeStamps.Count)
@@ -42,6 +61,12 @@ public class Lane : MonoBehaviour
                 var note = Instantiate(notePrefab, transform);
                 notes.Add(note.GetComponent<Note>());
                 note.GetComponent<Note>().assignedTime = (float)timeStamps[spawnIndex];
+                // Set the sprite of the note
+                if (spriteOptions.Length > 0)
+                {
+                    int randomIndex = UnityEngine.Random.Range(0, spriteOptions.Length);
+                    note.GetComponent<SpriteRenderer>().sprite = spriteOptions[randomIndex];
+                }
                 spawnIndex++;
             }
         }
@@ -56,10 +81,10 @@ public class Lane : MonoBehaviour
             {
                 if (Math.Abs(audioTime - timeStamp) < marginOfError)
                 {
-                    Hit(notes[inputIndex].gameObject.transform.position.x + 3);
+                    Hit(notes[inputIndex].gameObject.transform.position.x + 4);
                     print($"Hit on {inputIndex} note");
-                    //hitTimeText.text = notes[inputIndex].gameObject.transform.position.x.ToString();
                     Destroy(notes[inputIndex].gameObject);
+                    //StartCoroutine(DestroyAfterDelay(notes[inputIndex].gameObject, 1f));
                     inputIndex++;
                 }
                 else
@@ -76,24 +101,57 @@ public class Lane : MonoBehaviour
         }       
     
     }
+
+    /**
+     * Handle the hit event when the note is hit
+     * @param position: The position of the note
+     */
     private void Hit(float position)
     {
         ScoreManager.Hit();
-        if (position <= 0.5 && position >= -0.5) {
-            hitTimeText.text = "Perfect!";
-            hitTimeText.fontSize = 7;
-        } else if (position <= 1 && position >= -1) {
-            hitTimeText.text = "Great!";
-            hitTimeText.fontSize = 6;
-        } else {
-            hitTimeText.text = "Good!";
-            hitTimeText.fontSize = 5;
+        GameObject floatingText;
+        
+        if (position <= 0.5 && position >= -0.5)
+        {
+            floatingText = Instantiate(PerfectPrefab, floatingTextSpawnPos, Quaternion.identity);
         }
+        else if (position <= 1 && position >= -1)
+        {
+            floatingText = Instantiate(GreatPrefab, floatingTextSpawnPos, Quaternion.identity);
+        }
+        else
+        {
+            floatingText = Instantiate(GoodPrefab, floatingTextSpawnPos, Quaternion.identity);
+        }
+
+        StartCoroutine(DestroyAfterDelay(floatingText, 3f));
     }
+
+    /**
+     * Handle the miss event when the note is missed
+     */
     private void Miss()
     {
         ScoreManager.Miss();
-        hitTimeText.text = "Miss!";
-        hitTimeText.fontSize = 4;
+        // Floating Text for Miss
+        GameObject floatingText = Instantiate(MissPrefab, floatingTextSpawnPos, Quaternion.identity);
+        StartCoroutine(DestroyAfterDelay(floatingText, 3f));
+    }
+
+    /**
+     * Destroy the GameObject after a delay
+     * @param gameObjectToDestroy: The GameObject to destroy
+     * @param delay: The delay in seconds
+     */
+    private IEnumerator DestroyAfterDelay(GameObject gameObjectToDestroy, float delay)
+    {
+        // Wait for the specified delay
+        yield return new WaitForSeconds(delay);
+
+        // Check if the GameObject still exists before attempting to destroy it
+        if (gameObjectToDestroy != null)
+        {
+            Destroy(gameObjectToDestroy);
+        }
     }
 }
