@@ -66,6 +66,8 @@ public class Lane : MonoBehaviour
                 {
                     int randomIndex = UnityEngine.Random.Range(0, spriteOptions.Length);
                     note.GetComponent<SpriteRenderer>().sprite = spriteOptions[randomIndex];
+                    note.GetComponent<SpriteRenderer>().sortingOrder = 14;
+
                 }
                 spawnIndex++;
             }
