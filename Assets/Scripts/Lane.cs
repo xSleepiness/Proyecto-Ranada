@@ -25,6 +25,11 @@ public class Lane : MonoBehaviour
     int spawnIndex = 0;
     int inputIndex = 0;
 
+    // Coldown for the input
+    bool isCooldownActive = false;
+    float cooldownDuration = 0.5f;
+    float cooldownTimer = 0f;
+
     /**
      * Start is called before the first frame update
      */
@@ -89,18 +94,31 @@ public class Lane : MonoBehaviour
                     //StartCoroutine(DestroyAfterDelay(notes[inputIndex].gameObject, 1f));
                     inputIndex++;
                 }
-                else
+                else if (!isCooldownActive)
                 {
+                    Miss();
                     print($"Hit inaccurate on {inputIndex} note with {Math.Abs(audioTime - timeStamp)} delay");
+                    isCooldownActive = true;
+                    cooldownTimer = cooldownDuration;
                 }
             }
+
             if (timeStamp + marginOfError <= audioTime)
             {
                 Miss();
                 print($"Missed {inputIndex} note");
                 inputIndex++;
             }
-        }       
+
+            if (isCooldownActive)
+            {
+                cooldownTimer -= Time.deltaTime;
+                if (cooldownTimer <= 0)
+                {
+                    isCooldownActive = false;
+                }
+            }
+        }
     
     }
 
