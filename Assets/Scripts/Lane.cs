@@ -17,6 +17,7 @@ public class Lane : MonoBehaviour
     public GameObject GreatPrefab;
     public GameObject GoodPrefab;
     public GameObject MissPrefab;
+
     Vector3 floatingTextSpawnPos = new Vector3(-6.35f, 1.46f, 0f);
 
     // Sprite Options
@@ -66,6 +67,7 @@ public class Lane : MonoBehaviour
                 var note = Instantiate(notePrefab, transform);
                 notes.Add(note.GetComponent<Note>());
                 note.GetComponent<Note>().assignedTime = (float)timeStamps[spawnIndex];
+
                 // Set the sprite of the note
                 if (spriteOptions.Length > 0)
                 {
@@ -96,7 +98,7 @@ public class Lane : MonoBehaviour
                 }
                 else if (!isCooldownActive)
                 {
-                    Miss();
+                    Miss(true);
                     print($"Hit inaccurate on {inputIndex} note with {Math.Abs(audioTime - timeStamp)} delay");
                     isCooldownActive = true;
                     cooldownTimer = cooldownDuration;
@@ -105,7 +107,7 @@ public class Lane : MonoBehaviour
 
             if (timeStamp + marginOfError <= audioTime)
             {
-                Miss();
+                Miss(false);
                 print($"Missed {inputIndex} note");
                 inputIndex++;
             }
@@ -150,9 +152,9 @@ public class Lane : MonoBehaviour
     /**
      * Handle the miss event when the note is missed
      */
-    private void Miss()
+    private void Miss( bool isInputMiss )
     {
-        ScoreManager.Miss();
+        ScoreManager.Miss(isInputMiss);
         // Floating Text for Miss
         GameObject floatingText = Instantiate(MissPrefab, floatingTextSpawnPos, Quaternion.identity);
         StartCoroutine(DestroyAfterDelay(floatingText, 3f));
